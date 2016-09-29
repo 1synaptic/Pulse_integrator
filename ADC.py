@@ -3,13 +3,18 @@ import numpy as np
 from numpy import sin, exp, sqrt
 from math import pi
 
-T_LEN=10 #length of generated signal in s
-T_RES=10000 #samples per s
+T_LEN=20 #length of generated signal in s
+T_RES=1000 #samples per s
 
-def wh_noise(t_series, ampl):
-    for i in range(1,len(t_series)):
-        t_series[i]+=ampl*np.random.normal()
-    return t_series
+def wh_noise(v_series, ampl):
+    for i in range(1,len(v_series)):
+        v_series[i]+=ampl*np.random.normal()
+    return v_series
+
+def pulse(v_series, ampl, start, width):
+    for i in range(int(start),int(start+width+1)):
+        v_series[i]+=ampl
+    return v_series    
 
 def freq_domain(y,t):
     global f
@@ -21,7 +26,7 @@ def freq_domain(y,t):
     semilogx(f,y)
 
 def filt(y,freq_curve):
-    y=np.real(np.fft.fft(y))
+    y=np.fft.fft(y)
     freq_curve=freq_curve/max(freq_curve)
     y*=freq_curve
     return np.fft.ifft(y)
@@ -36,6 +41,7 @@ filt_curve=abs(filt_curve)
 
 #add white noise
 v=wh_noise(v,2.0)#+10*sin(t)+5*sin(5*t)
+v=pulse(v, 100.0, 5.0*T_RES, 1.0*T_RES)
 #v=sin(2*pi*t) #FFT test
 vf=freq_domain(v,t)
 
